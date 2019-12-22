@@ -11,7 +11,7 @@ const withAuth = (req, res, nex) => {
   } else {
     jwt.verify(token, secret, (err, decoded) => {
       if (err) {
-        res.status(401).send("Unauthorized: Invalid token!");
+        res.status(401).json({ error: "Unauthorized: Invalid token!" });
       } else {
         req.email = decoded.email;
         User.findOne({
