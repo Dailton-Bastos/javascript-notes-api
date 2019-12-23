@@ -49,15 +49,30 @@ router.put("/:id", withAuth, async (req, res) => {
       let note = await Note.findOneAndUpdate(
         id,
         { $set: { title: title, body: body } },
-        // prettier-ignore
-        { upsert: true, "new": true }
+        { upsert: true, new: true }
       );
-      res.status(200).json(note);
+      res.json(note).status(200);
     } else {
       res.status(403).json({ error: "Permission denied!" });
     }
   } catch (error) {
     res.status(500).json({ error: "Problem to update a note!" });
+  }
+});
+
+router.delete("/:id", withAuth, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    let note = await Note.findById(id);
+    if (isOwner(req.user, note)) {
+      await note.delete();
+      res.json({ message: "Note succesful deleted!", note: note }).status(204);
+    } else {
+      res.status(403).json({ error: "Permission denied!" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Problem to delete a note!" });
   }
 });
 
